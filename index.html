@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3Dmol Viewer with Accurate Custom Colours</title>
+  <title>3Dmol Custom Viewer with Labels</title>
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
-    html, body { margin: 0; height: 100%; overflow: hidden; }
-    #viewer { width: 100%; height: 100%; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #viewer {
+      width: 100%;
+      height: 100%;
+    }
   </style>
 </head>
 <body>
@@ -16,7 +23,6 @@
       backgroundColor: "white"
     });
 
-    // Define element colours
     const elementColours = {
       C: "#363636",
       O: "#FF3838",
@@ -25,33 +31,28 @@
       S: "goldenrod"
     };
 
-    // Define a function that returns colours per atom
-    function colourByElement(atom) {
-      return elementColours[atom.elem] || "teal";
-    }
-
-    // Load molecule from PubChem CID
-    $3Dmol.download("cid:4369440", viewer, {noAutoStyle: true}, function () {
-      viewer.setStyle({}, {
+    $3Dmol.download("cid:4369440", viewer, { noAutoStyle: true }, function() {
+      const model = viewer.getModel();
+      model.setStyle({}, {
         stick: {
           radius: 0.15,
-          colorfunc: colourByElement
+          colorfunc: atom => elementColours[atom.elem] || "teal"
         },
         sphere: {
           radius: 0.3,
-          colorfunc: colourByElement
+          colorfunc: atom => elementColours[atom.elem] || "teal"
         }
       });
 
       viewer.zoomTo();
       viewer.render();
 
-      // Add labels to non-hydrogens
-      const atoms = viewer.selectedAtoms({});
+      // Now safely access atoms for labelling
+      const atoms = model.selectedAtoms({});
       atoms.forEach(atom => {
-        if (atom.elem !== 'H' && atom.x != null) {
+        if (atom.elem !== 'H') {
           viewer.addLabel(atom.elem, {
-            position: {x: atom.x, y: atom.y, z: atom.z},
+            position: atom,
             backgroundColor: "white",
             backgroundOpacity: 0.7,
             fontColor: "black",
@@ -62,4 +63,8 @@
         }
       });
 
-      v
+      viewer.render();
+    });
+  </script>
+</body>
+</html>
