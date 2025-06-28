@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3Dmol Viewer with Custom Colours</title>
+  <title>3Dmol Viewer with Accurate Custom Colours</title>
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     html, body { margin: 0; height: 100%; overflow: hidden; }
@@ -16,47 +16,50 @@
       backgroundColor: "white"
     });
 
-    const customColours = $3Dmol.makeElementColors({
-      C: "#363636",      // Carbon
-      O: "#FF3838",      // Oxygen
-      N: "#7070FF",      // Nitrogen
-      H: "#FFFFFF",      // Hydrogen
-      S: "goldenrod"     // Sulphur
-    });
+    // Define element colours
+    const elementColours = {
+      C: "#363636",
+      O: "#FF3838",
+      N: "#7070FF",
+      H: "#FFFFFF",
+      S: "goldenrod"
+    };
 
+    // Define a function that returns colours per atom
+    function colourByElement(atom) {
+      return elementColours[atom.elem] || "teal";
+    }
+
+    // Load molecule from PubChem CID
     $3Dmol.download("cid:4369440", viewer, {noAutoStyle: true}, function () {
       viewer.setStyle({}, {
         stick: {
           radius: 0.15,
-          colorscheme: customColours
+          colorfunc: colourByElement
         },
         sphere: {
           radius: 0.3,
-          colorscheme: customColours
+          colorfunc: colourByElement
         }
       });
 
       viewer.zoomTo();
       viewer.render();
 
+      // Add labels to non-hydrogens
       const atoms = viewer.selectedAtoms({});
       atoms.forEach(atom => {
-        if (atom.elem !== 'H' && atom.x != null && atom.y != null && atom.z != null) {
+        if (atom.elem !== 'H' && atom.x != null) {
           viewer.addLabel(atom.elem, {
             position: {x: atom.x, y: atom.y, z: atom.z},
             backgroundColor: "white",
             backgroundOpacity: 0.7,
             fontColor: "black",
             fontSize: 12,
-            inFront: false,
             showBackground: true,
-            alignment: 'center'
+            alignment: "center"
           });
         }
       });
 
-      viewer.render();
-    });
-  </script>
-</body>
-</html>
+      v
