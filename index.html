@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3Dmol Ball-and-Stick Custom Viewer</title>
+  <title>3Dmol Custom Viewer with Labels</title>
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     html, body {
       margin: 0;
-      padding: 0;
       height: 100%;
       overflow: hidden;
     }
@@ -20,6 +19,10 @@
 <body>
   <div id="viewer"></div>
   <script>
+    const viewer = $3Dmol.createViewer("viewer", {
+      backgroundColor: "white"
+    });
+
     const elementColours = {
   C: "#363636",
   O: "#FF3838",
@@ -30,21 +33,15 @@
   Cl: "#66CC00"
     };
 
-    const viewer = $3Dmol.createViewer("viewer", {
-      backgroundColor: "white"
-    });
-
-    $3Dmol.download("cid:4369440", viewer, {noAutoStyle: true}, function(data) {
-      const model = viewer.addModel(data, "sdf");
-
-      // Set style: ball-and-stick with colour function
+    $3Dmol.download("cid:4369440", viewer, { noAutoStyle: true }, function() {
+      const model = viewer.getModel();
       model.setStyle({}, {
-        sphere: {
-          radius: 0.3,
-          colorfunc: atom => elementColours[atom.elem] || "teal"
-        },
         stick: {
           radius: 0.15,
+          colorfunc: atom => elementColours[atom.elem] || "teal"
+        },
+        sphere: {
+          radius: 0.3,
           colorfunc: atom => elementColours[atom.elem] || "teal"
         }
       });
@@ -52,10 +49,10 @@
       viewer.zoomTo();
       viewer.render();
 
-      // Add labels for non-hydrogens
+      // Now safely access atoms for labelling
       const atoms = model.selectedAtoms({});
-      for (const atom of atoms) {
-        if (atom.elem !== "H" && atom.x != null) {
+      atoms.forEach(atom => {
+        if (atom.elem !== 'H') {
           viewer.addLabel(atom.elem, {
             position: atom,
             backgroundColor: "white",
@@ -63,10 +60,10 @@
             fontColor: "black",
             fontSize: 12,
             showBackground: true,
-            inFront: false
+            alignment: "center"
           });
         }
-      }
+      });
 
       viewer.render();
     });
