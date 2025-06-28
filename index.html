@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>3Dmol Custom Viewer with Labels</title>
+  <title>3Dmol Viewer</title>
   <script src="https://3dmol.org/build/3Dmol-min.js"></script>
   <style>
     html, body {
@@ -19,10 +19,6 @@
 <body>
   <div id="viewer"></div>
   <script>
-    const viewer = $3Dmol.createViewer("viewer", {
-      backgroundColor: "white"
-    });
-
     const elementColours = {
       C: "#363636",
       O: "#FF3838",
@@ -31,8 +27,14 @@
       S: "goldenrod"
     };
 
-    $3Dmol.download("cid:4369440", viewer, { noAutoStyle: true }, function() {
-      const model = viewer.getModel();
+    const viewer = $3Dmol.createViewer("viewer", {
+      backgroundColor: "white"
+    });
+
+    $3Dmol.download("cid:4369440", viewer, {noAutoStyle: true}, function(modelData) {
+      const model = viewer.addModel(modelData, "sdf");
+
+      // Apply custom styles
       model.setStyle({}, {
         stick: {
           radius: 0.15,
@@ -47,21 +49,20 @@
       viewer.zoomTo();
       viewer.render();
 
-      // Now safely access atoms for labelling
+      // Add labels for non-hydrogens
       const atoms = model.selectedAtoms({});
-      atoms.forEach(atom => {
-        if (atom.elem !== 'H') {
+      for (const atom of atoms) {
+        if (atom.elem !== "H" && atom.x != null) {
           viewer.addLabel(atom.elem, {
-            position: atom,
+            position: {x: atom.x, y: atom.y, z: atom.z},
             backgroundColor: "white",
             backgroundOpacity: 0.7,
             fontColor: "black",
             fontSize: 12,
-            showBackground: true,
-            alignment: "center"
+            showBackground: true
           });
         }
-      });
+      }
 
       viewer.render();
     });
