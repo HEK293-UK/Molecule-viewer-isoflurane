@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3Dmol Ball-and-Stick with Labels</title>
+  <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; }
+    #viewer { width: 100%; height: 100%; }
+  </style>
+</head>
+<body>
+  <div id="viewer"></div>
+  <script>
+    const viewer = $3Dmol.createViewer("viewer", {
+      backgroundColor: "white"
+    });
+
+    $3Dmol.download("cid:4369440", viewer, {}, function () {
+      viewer.setStyle({}, {
+        stick: {
+          radius: 0.15,
+          colorscheme: {
+            C: "black",
+            O: "red",
+            N: "#4747FF",
+            H: "white",
+            S: "yellow",
+            default: "teal"
+          }
+        },
+        sphere: {
+          radius: 0.3,
+          colorscheme: {
+            C: "black",
+            O: "red",
+            N: "#4747FF",
+            H: "white",
+            S: "yellow",
+            default: "teal"
+          }
+        }
+      });
+
+      viewer.zoomTo();
+      viewer.render();
+
+      // Add labels only to non-hydrogen atoms with valid positions
+      const atoms = viewer.selectedAtoms({});
+      atoms.forEach(atom => {
+        if (atom.elem !== 'H' && atom.x != null && atom.y != null && atom.z != null) {
+          viewer.addLabel(atom.elem, {
+            position: {x: atom.x, y: atom.y, z: atom.z},
+            backgroundColor: "white",
+            backgroundOpacity: 0.7,
+            fontColor: "black",
+            fontSize: 12,
+            inFront: false,
+            showBackground: true,
+            alignment: 'center'
+          });
+        }
+      });
+
+      viewer.render();
+    });
+  </script>
+</body>
+</html>
